@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Todo 追加{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Todo 追加</h1>
+  <a href="{{ url_for('index') }}" class="btn btn-secondary">← 一覧へ戻る</a>
+</div>
+
+<form method="post" class="todo-form">
+  <div class="form-group">
+    <label for="title">タイトル <span class="required">*</span></label>
+    <input type="text" id="title" name="title" required placeholder="例：資料を作成する">
+  </div>
+
+  <div class="form-group">
+    <label for="content">内容</label>
+    <textarea id="content" name="content" rows="4" placeholder="詳細内容を入力してください"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="due_date">期日</label>
+    <input type="date" id="due_date" name="due_date">
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">追加する</button>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">キャンセル</a>
+  </div>
+</form>
+{% endblock %}

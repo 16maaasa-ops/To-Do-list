@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Todo 一覧{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Todo 一覧</h1>
+  <a href="{{ url_for('add') }}" class="btn btn-primary">+ 新規追加</a>
+</div>
+
+{% if todos %}
+<table>
+  <thead>
+    <tr>
+      <th>ステータス</th>
+      <th>タイトル</th>
+      <th>内容</th>
+      <th>期日</th>
+      <th>作成日時</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for todo in todos %}
+    <tr class="{{ 'done' if todo['ステータス'] == '完了' else '' }}">
+      <td>
+        <form method="post" action="{{ url_for('toggle', todo_id=todo['ID']) }}">
+          <button type="submit" class="btn-status {{ 'completed' if todo['ステータス'] == '完了' else 'pending' }}">
+            {{ todo['ステータス'] }}
+          </button>
+        </form>
+      </td>
+      <td>{{ todo['タイトル'] }}</td>
+      <td class="content-cell">{{ todo['内容'] }}</td>
+      <td>{{ todo['期日'] }}</td>
+      <td>{{ todo['作成日時'] }}</td>
+      <td class="actions">
+        <a href="{{ url_for('edit', todo_id=todo['ID']) }}" class="btn btn-secondary">編集</a>
+        <form method="post" action="{{ url_for('delete', todo_id=todo['ID']) }}" onsubmit="return confirm('削除しますか？')">
+          <button type="submit" class="btn btn-danger">削除</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">Todoがまだありません。<a href="{{ url_for('add') }}">追加してみましょう。</a></p>
+{% endif %}
+{% endblock %}
