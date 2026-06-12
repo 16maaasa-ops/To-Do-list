@@ -7,54 +7,105 @@
   <a href="{{ url_for('add') }}" class="btn btn-primary">+ 新規追加</a>
 </div>
 
-<div class="sort-bar">
-  <span>並び替え：</span>
-  <a href="?sort=created" class="btn btn-sort {{ 'active' if sort == 'created' else '' }}">作成日時</a>
-  <a href="?sort=priority" class="btn btn-sort {{ 'active' if sort == 'priority' else '' }}">重要度</a>
-  <a href="?sort=due_date" class="btn btn-sort {{ 'active' if sort == 'due_date' else '' }}">期日</a>
+<div class="filter-bar">
+  <div class="category-tabs" role="tablist" aria-label="カテゴリフィルター">
+    <a href="?category=すべて&sort={{ sort }}" class="tab {{ 'active' if category == 'すべて' else '' }}"
+       role="tab" aria-selected="{{ 'true' if category == 'すべて' else 'false' }}">すべて</a>
+    {% for cat in categories %}
+    <a href="?category={{ cat }}&sort={{ sort }}" class="tab {{ 'active' if category == cat else '' }}"
+       role="tab" aria-selected="{{ 'true' if category == cat else 'false' }}">{{ cat }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="sort-bar">
+    <span>並び替え：</span>
+    <a href="?sort=created&category={{ category }}" class="btn btn-sort {{ 'active' if sort == 'created' else '' }}">作成日時</a>
+    <a href="?sort=priority&category={{ category }}" class="btn btn-sort {{ 'active' if sort == 'priority' else '' }}">重要度</a>
+    <a href="?sort=due_date&category={{ category }}" class="btn btn-sort {{ 'active' if sort == 'due_date' else '' }}">期日</a>
+  </div>
 </div>
 
 {% if todos %}
-<table>
-  <thead>
-    <tr>
-      <th>ステータス</th>
-      <th>重要度</th>
-      <th>タイトル</th>
-      <th>内容</th>
-      <th>期日</th>
-      <th>作成日時</th>
-      <th>操作</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for todo in todos %}
-    <tr class="{{ 'done' if todo['ステータス'] == '完了' else '' }}">
-      <td>
-        <form method="post" action="{{ url_for('toggle', todo_id=todo['ID']) }}">
-          <button type="submit" class="btn-status {{ 'completed' if todo['ステータス'] == '完了' else 'pending' }}">
-            {{ todo['ステータス'] }}
-          </button>
-        </form>
-      </td>
-      <td>
-        <span class="badge priority-{{ todo['重要度'] }}">{{ todo['重要度'] }}</span>
-      </td>
-      <td>{{ todo['タイトル'] }}</td>
-      <td class="content-cell">{{ todo['内容'] }}</td>
-      <td>{{ todo['期日'] }}</td>
-      <td>{{ todo['作成日時'] }}</td>
-      <td class="actions">
-        <a href="{{ url_for('edit', todo_id=todo['ID']) }}" class="btn btn-secondary">編集</a>
-        <form method="post" action="{{ url_for('delete', todo_id=todo['ID']) }}" onsubmit="return confirm('削除しますか？')">
-          <button type="submit" class="btn btn-danger">削除</button>
-        </form>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>ステータス</th>
+        <th>タイトル</th>
+        <th>カテゴリ</th>
+        <th>重要度</th>
+        <th>期日</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for todo in todos %}
+      <tr class="{{ 'done' if todo['ステータス'] == '完了' else '' }}">
+        <td>
+          <form method="post" action="{{ url_for('toggle', todo_id=todo['ID']) }}">
+            <button type="submit"
+              class="btn-status {{ 'completed' if todo['ステータス'] == '完了' else 'pending' }}"
+              aria-label="{{ todo['タイトル'] }} のステータスを切り替え">
+              {{ todo['ステータス'] }}
+            </button>
+          </form>
+        </td>
+        <td class="title-cell">
+          <span class="todo-title">{{ todo['タイトル'] }}</span>
+          {% if todo['内容'] %}
+          <span class="todo-content">{{ todo['内容'] }}</span>
+          {% endif %}
+        </td>
+        <td><span class="badge category-{{ todo['カテゴリ'] }}">{{ todo['カテゴリ'] }}</span></td>
+        <td><span class="badge priority-{{ todo['重要度'] }}">{{ todo['重要度'] }}</span></td>
+        <td>{{ todo['期日'] }}</td>
+        <td>
+          <div class="actions">
+            <a href="{{ url_for('edit', todo_id=todo['ID']) }}" class="btn btn-secondary btn-sm" aria-label="編集">編集</a>
+            <button type="button" class="btn btn-icon btn-danger-icon"
+              onclick="openDeleteModal('{{ todo['ID'] }}', '{{ todo['タイトル'] }}')"
+              aria-label="{{ todo['タイトル'] }} を削除">
+              <img src="{{ url_for('static', filename='img/ゴミ箱.png') }}" alt="削除" class="icon-img">
+            </button>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% else %}
 <p class="empty">Todoがまだありません。<a href="{{ url_for('add') }}">追加してみましょう。</a></p>
 {% endif %}
+
+<!-- 削除確認モーダル -->
+<div id="delete-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <h2 id="modal-title">削除の確認</h2>
+    <p>「<span id="modal-todo-title"></span>」を削除しますか？<br>この操作は取り消せません。</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">キャンセル</button>
+      <form id="delete-form" method="post">
+        <button type="submit" class="btn btn-danger">削除する</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function openDeleteModal(todoId, todoTitle) {
+  document.getElementById('modal-todo-title').textContent = todoTitle;
+  document.getElementById('delete-form').action = '/delete/' + todoId;
+  document.getElementById('delete-modal').classList.add('active');
+}
+function closeDeleteModal() {
+  document.getElementById('delete-modal').classList.remove('active');
+}
+document.getElementById('delete-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeDeleteModal();
+});
+</script>
 {% endblock %}

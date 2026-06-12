@@ -11,11 +11,18 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 
+ALLOWED_SORTS = {"created", "priority", "due_date"}
+
 @app.route("/")
 def index():
     sort = request.args.get("sort", "created")
-    todos = sheets.get_all_todos(sort=sort)
-    return render_template("index.html", todos=todos, sort=sort)
+    if sort not in ALLOWED_SORTS:
+        sort = "created"
+    category = request.args.get("category", "すべて")
+    if category not in ["すべて"] + sheets.CATEGORIES:
+        category = "すべて"
+    todos = sheets.get_all_todos(sort=sort, category=category)
+    return render_template("index.html", todos=todos, sort=sort, category=category, categories=sheets.CATEGORIES)
 
 
 @app.route("/add", methods=["GET", "POST"])
@@ -28,10 +35,11 @@ def add():
             flash("タイトルは必須です。", "error")
             return render_template("add.html")
         priority = request.form.get("priority", "中")
-        sheets.add_todo(title, content, due_date, priority)
+        category = request.form.get("category", "その他")
+        sheets.add_todo(title, content, due_date, priority, category)
         flash("Todoを追加しました。", "success")
         return redirect(url_for("index"))
-    return render_template("add.html")
+    return render_template("add.html", categories=sheets.CATEGORIES)
 
 
 @app.route("/edit/<todo_id>", methods=["GET", "POST"])
@@ -46,12 +54,13 @@ def edit(todo_id):
         due_date = request.form["due_date"]
         if not title:
             flash("タイトルは必須です。", "error")
-            return render_template("edit.html", todo=todo)
+            return render_template("edit.html", todo=todo, categories=sheets.CATEGORIES)
         priority = request.form.get("priority", "中")
-        sheets.update_todo(todo_id, title, content, due_date, priority)
+        category = request.form.get("category", "その他")
+        sheets.update_todo(todo_id, title, content, due_date, priority, category)
         flash("Todoを更新しました。", "success")
         return redirect(url_for("index"))
-    return render_template("edit.html", todo=todo)
+    return render_template("edit.html", todo=todo, categories=sheets.CATEGORIES)
 
 
 @app.route("/toggle/<todo_id>", methods=["POST"])

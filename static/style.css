@@ -46,7 +46,7 @@ main {
 }
 
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   color: #1e1b4b;
 }
 
@@ -67,15 +67,94 @@ h1 {
 .btn-secondary:hover { background: #d1d5db; }
 .btn-danger    { background: #ef4444; color: white; }
 .btn-danger:hover { background: #dc2626; }
+.btn-sm { padding: 0 12px; height: 32px; font-size: 0.8rem; display: inline-flex; align-items: center; vertical-align: middle; }
+
+/* Icon delete button */
+.btn-icon {
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  color: #9ca3af;
+  cursor: pointer;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+.btn-icon:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+/* Filter bar: tabs + sort on same row */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Category tabs */
+.category-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0;
+}
+
+.tab {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  white-space: nowrap;
+}
+.tab:hover { color: #4f46e5; }
+.tab.active { color: #4f46e5; border-bottom-color: #4f46e5; }
+
+/* Sort bar */
+.sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.btn-sort {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  background: #f3f4f6;
+  color: #374151;
+  text-decoration: none;
+}
+.btn-sort:hover { background: #e5e7eb; }
+.btn-sort.active { background: #4f46e5; color: white; }
 
 /* Table */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  min-width: 600px;
 }
 
 thead {
@@ -87,6 +166,7 @@ th, td {
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
   font-size: 0.9rem;
+  vertical-align: middle;
 }
 
 th {
@@ -97,28 +177,50 @@ th {
   letter-spacing: 0.05em;
 }
 
-tr.done td {
-  opacity: 0.5;
-  text-decoration: line-through;
+/* Title cell with subtext */
+.title-cell { min-width: 160px; }
+
+.todo-title {
+  display: block;
+  font-weight: 500;
+  color: #111827;
 }
 
-tr.done td:first-child,
-tr.done td:last-child {
-  text-decoration: none;
-  opacity: 1;
-}
-
-.content-cell {
-  max-width: 200px;
+.todo-content {
+  display: block;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-top: 2px;
+  max-width: 240px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* Completed row */
+tr.done .todo-title {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+tr.done td {
+  opacity: 0.6;
+}
+tr.done td:first-child,
+tr.done td:last-child {
+  opacity: 1;
+}
+
 .actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
+}
+
+.icon-img {
+  width: 20px;
+  height: 20px;
+  display: block;
+  object-fit: contain;
 }
 
 /* Status button */
@@ -168,17 +270,19 @@ label {
 
 input[type="text"],
 input[type="date"],
-textarea {
+textarea,
+select {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 0.9rem;
   font-family: inherit;
+  background: white;
   transition: border-color 0.15s;
 }
 
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
@@ -190,51 +294,76 @@ input:focus, textarea:focus {
   margin-top: 24px;
 }
 
-select {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-family: inherit;
-  background: white;
-}
-
-select:focus {
-  outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
-
-/* Sort bar */
-.sort-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  font-size: 0.9rem;
-  color: #6b7280;
-}
-
-.btn-sort {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  background: #f3f4f6;
-  color: #374151;
-  text-decoration: none;
-}
-.btn-sort:hover { background: #e5e7eb; }
-.btn-sort.active { background: #4f46e5; color: white; }
-
 /* Priority badges */
 .badge {
   display: inline-block;
   padding: 3px 10px;
   border-radius: 20px;
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 .priority-高 { background: #fee2e2; color: #991b1b; }
 .priority-中 { background: #fef3c7; color: #92400e; }
-.priority-低 { background: #f3f4f6; color: #6b7280; }
+.priority-低 { background: #f3f4f6; color: #4b5563; }
+
+/* Category badges */
+.category-仕事        { background: #dbeafe; color: #1e40af; }
+.category-プライベート { background: #d1fae5; color: #065f46; }
+.category-勉強        { background: #ede9fe; color: #5b21b6; }
+.category-その他      { background: #f3f4f6; color: #4b5563; }
+
+/* Delete modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal h2 {
+  font-size: 1.1rem;
+  color: #111827;
+  margin-bottom: 12px;
+}
+
+.modal p {
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .sort-bar {
+    padding-bottom: 8px;
+  }
+  main {
+    margin: 16px auto;
+  }
+}
