@@ -13,8 +13,9 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 @app.route("/")
 def index():
-    todos = sheets.get_all_todos()
-    return render_template("index.html", todos=todos)
+    sort = request.args.get("sort", "created")
+    todos = sheets.get_all_todos(sort=sort)
+    return render_template("index.html", todos=todos, sort=sort)
 
 
 @app.route("/add", methods=["GET", "POST"])
@@ -26,7 +27,8 @@ def add():
         if not title:
             flash("タイトルは必須です。", "error")
             return render_template("add.html")
-        sheets.add_todo(title, content, due_date)
+        priority = request.form.get("priority", "中")
+        sheets.add_todo(title, content, due_date, priority)
         flash("Todoを追加しました。", "success")
         return redirect(url_for("index"))
     return render_template("add.html")
@@ -45,7 +47,8 @@ def edit(todo_id):
         if not title:
             flash("タイトルは必須です。", "error")
             return render_template("edit.html", todo=todo)
-        sheets.update_todo(todo_id, title, content, due_date)
+        priority = request.form.get("priority", "中")
+        sheets.update_todo(todo_id, title, content, due_date, priority)
         flash("Todoを更新しました。", "success")
         return redirect(url_for("index"))
     return render_template("edit.html", todo=todo)

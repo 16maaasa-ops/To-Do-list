@@ -7,11 +7,19 @@
   <a href="{{ url_for('add') }}" class="btn btn-primary">+ 新規追加</a>
 </div>
 
+<div class="sort-bar">
+  <span>並び替え：</span>
+  <a href="?sort=created" class="btn btn-sort {{ 'active' if sort == 'created' else '' }}">作成日時</a>
+  <a href="?sort=priority" class="btn btn-sort {{ 'active' if sort == 'priority' else '' }}">重要度</a>
+  <a href="?sort=due_date" class="btn btn-sort {{ 'active' if sort == 'due_date' else '' }}">期日</a>
+</div>
+
 {% if todos %}
 <table>
   <thead>
     <tr>
       <th>ステータス</th>
+      <th>重要度</th>
       <th>タイトル</th>
       <th>内容</th>
       <th>期日</th>
@@ -28,6 +36,9 @@
             {{ todo['ステータス'] }}
           </button>
         </form>
+      </td>
+      <td>
+        <span class="badge priority-{{ todo['重要度'] }}">{{ todo['重要度'] }}</span>
       </td>
       <td>{{ todo['タイトル'] }}</td>
       <td class="content-cell">{{ todo['内容'] }}</td>

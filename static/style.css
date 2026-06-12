@@ -189,3 +189,52 @@ input:focus, textarea:focus {
   gap: 12px;
   margin-top: 24px;
 }
+
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: white;
+}
+
+select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Sort bar */
+.sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.btn-sort {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  background: #f3f4f6;
+  color: #374151;
+  text-decoration: none;
+}
+.btn-sort:hover { background: #e5e7eb; }
+.btn-sort.active { background: #4f46e5; color: white; }
+
+/* Priority badges */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.priority-高 { background: #fee2e2; color: #991b1b; }
+.priority-中 { background: #fef3c7; color: #92400e; }
+.priority-低 { background: #f3f4f6; color: #6b7280; }

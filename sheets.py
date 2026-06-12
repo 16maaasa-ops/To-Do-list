@@ -8,7 +8,8 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-HEADER = ["ID", "タイトル", "内容", "期日", "ステータス", "作成日時"]
+HEADER = ["ID", "タイトル", "内容", "期日", "ステータス", "作成日時", "重要度"]
+PRIORITY_ORDER = {"高": 0, "中": 1, "低": 2}
 
 
 def get_client():
@@ -32,14 +33,24 @@ def get_sheet():
     client = get_client()
     spreadsheet_id = os.environ["SPREADSHEET_ID"]
     sheet = client.open_by_key(spreadsheet_id).sheet1
-    if sheet.row_count == 0 or sheet.cell(1, 1).value != "ID":
+    first_row = sheet.row_values(1)
+    if not first_row or first_row[0] != "ID":
         sheet.insert_row(HEADER, 1)
+    elif "重要度" not in first_row:
+        sheet.update_cell(1, 7, "重要度")
     return sheet
 
 
-def get_all_todos():
+def get_all_todos(sort="created"):
     sheet = get_sheet()
-    return sheet.get_all_records()
+    records = sheet.get_all_records()
+    for r in records:
+        r.setdefault("重要度", "中")
+    if sort == "priority":
+        records.sort(key=lambda r: PRIORITY_ORDER.get(r["重要度"], 1))
+    elif sort == "due_date":
+        records.sort(key=lambda r: (r["期日"] == "", r["期日"]))
+    return records
 
 
 def get_todo(todo_id):
@@ -51,20 +62,21 @@ def get_todo(todo_id):
     return None, None
 
 
-def add_todo(title, content, due_date):
+def add_todo(title, content, due_date, priority="中"):
     sheet = get_sheet()
     todo_id = str(uuid.uuid4())[:8]
     created_at = datetime.now().strftime("%Y-%m-%d %H:%M")
-    sheet.append_row([todo_id, title, content, due_date, "未完了", created_at])
+    sheet.append_row([todo_id, title, content, due_date, "未完了", created_at, priority])
     return todo_id
 
 
-def update_todo(todo_id, title, content, due_date):
+def update_todo(todo_id, title, content, due_date, priority="中"):
     sheet = get_sheet()
     _, row_index = get_todo(todo_id)
     if row_index is None:
         return False
     sheet.update(f"B{row_index}:D{row_index}", [[title, content, due_date]])
+    sheet.update_cell(row_index, 7, priority)
     return True
 
 
