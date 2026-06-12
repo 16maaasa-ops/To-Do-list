@@ -5,9 +5,29 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
-      - key: GOOGLE_CREDENTIALS_JSON
+      - key: GOOGLE_OAUTH_CREDENTIALS_JSON
         sync: false
       - key: SPREADSHEET_ID
         sync: false
       - key: SECRET_KEY
         generateValue: true
+      - key: LINE_CHANNEL_ACCESS_TOKEN
+        sync: false
+      - key: LINE_USER_ID
+        sync: false
+
+  - type: cron
+    name: todo-line-notify
+    runtime: python
+    schedule: "0 23 * * *"
+    buildCommand: pip install -r requirements.txt
+    startCommand: python notify.py
+    envVars:
+      - key: GOOGLE_OAUTH_CREDENTIALS_JSON
+        sync: false
+      - key: SPREADSHEET_ID
+        sync: false
+      - key: LINE_CHANNEL_ACCESS_TOKEN
+        sync: false
+      - key: LINE_USER_ID
+        sync: false
